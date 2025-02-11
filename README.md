@@ -1,6 +1,16 @@
 # 📌 Project: College Event Management System
 A web application that allows students to create, manage, and participate in college events.
 
+## 📁 Project Structure
+```
+college-event-management/
+│── backend/          # Node.js + Express backend
+│── frontend/         # React frontend
+│── README.md
+│── .gitignore
+│── package.json
+```
+
 ## 🌟 Features
 ### 1️⃣ User Authentication & Profiles
 - Sign up/login with email & password (JWT-based authentication)
@@ -50,5 +60,3 @@ A web application that allows students to create, manage, and participate in col
 ✅ Payment integration (Stripe) for paid events
 ✅ QR Code-based check-in system
 ✅ AI-powered event recommendations
-
-
