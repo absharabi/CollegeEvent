@@ -50,3 +50,12 @@ A web application that allows students to create, manage, and participate in col
 ✅ Payment integration (Stripe) for paid events
 ✅ QR Code-based check-in system
 ✅ AI-powered event recommendations
+
+#📁 Project Structure
+
+college-event-management/
+│── backend/          # Node.js + Express backend
+│── frontend/         # React frontend
+│── README.md
+│── .gitignore
+│── package.json
