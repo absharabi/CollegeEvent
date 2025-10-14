@@ -1,9 +1,8 @@
-const Event = require("../models/Event");
+const { Event, User } = require("../models");
 
 exports.createEvent = async (req, res) => {
   try {
-    const event = new Event({ ...req.body, createdBy: req.user.id });
-    await event.save();
+    const event = await Event.create({ ...req.body, createdBy: req.user.id });
     res.status(201).json(event);
   } catch (error) {
     res.status(500).json({ error: "Event creation failed" });
@@ -12,7 +11,9 @@ exports.createEvent = async (req, res) => {
 
 exports.getEvents = async (req, res) => {
   try {
-    const events = await Event.find().populate("createdBy", "name");
+    const events = await Event.findAll({
+      include: [{ model: User, as: "creator", attributes: ["id","name"] }]
+    });
     res.json(events);
   } catch (error) {
     res.status(500).json({ error: "Fetching events failed" });
@@ -21,14 +22,10 @@ exports.getEvents = async (req, res) => {
 
 exports.registerForEvent = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findByPk(req.params.id);
     if (!event) return res.status(404).json({ error: "Event not found" });
 
-    if (!event.attendees.includes(req.user.id)) {
-      event.attendees.push(req.user.id);
-      await event.save();
-    }
-
+    await event.addAttendee(req.user.id); // Many-to-many
     res.json({ message: "Registered for event" });
   } catch (error) {
     res.status(500).json({ error: "Event registration failed" });
