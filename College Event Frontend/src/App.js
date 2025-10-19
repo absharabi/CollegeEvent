@@ -1,27 +1,30 @@
 import React, { useContext } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom"; // ❌ Removed BrowserRouter here
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import EventDetails from "./pages/EventDetails";
+import AddEvent from "./pages/AddEvent";
 import Navbar from "./components/Navbar";
 import PrivateRoute from "./components/PrivateRoute";
 import { AuthContext, AuthProvider } from "./context/AuthContext";
 import "./styles/global.css";
 
 function App() {
-  const { user } = useContext(AuthContext); // get user from context
+  const { user } = useContext(AuthContext);
 
   return (
     <>
       <Navbar />
+
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Protected Route */}
+        {/* Protected Routes */}
         <Route
           path="/dashboard"
           element={
@@ -30,14 +33,21 @@ function App() {
             </PrivateRoute>
           }
         />
-
+        <Route
+          path="/add-event"
+          element={
+            <PrivateRoute isAuthenticated={!!user}>
+              <AddEvent />
+            </PrivateRoute>
+          }
+        />
         <Route path="/events/:id" element={<EventDetails />} />
       </Routes>
     </>
   );
 }
 
-// Wrap App with AuthProvider
+// ✅ Wrap with AuthProvider only
 export default function AppWithProvider() {
   return (
     <AuthProvider>

@@ -12,14 +12,17 @@ const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  // ✅ Store user + token in localStorage
   const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
+    setUser(userData.user);
+    localStorage.setItem("user", JSON.stringify(userData.user));
+    localStorage.setItem("token", userData.token);
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
   };
 
   return (
