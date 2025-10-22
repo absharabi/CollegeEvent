@@ -1,20 +1,9 @@
 const express = require("express");
-const {
-  submitFeedback,
-  getEventFeedback,
-  getUserFeedback
-} = require("../controllers/feedbackController");
-const authMiddleware = require("../middleware/authMiddleware");
-
 const router = express.Router();
+const { createFeedback, getMyFeedback } = require("../controllers/feedbackController");
+const { protect } = require("../middleware/authMiddleware");
 
-// Submit feedback for an event
-router.post("/submit", authMiddleware, submitFeedback);
-
-// Get feedback for a specific event
-router.get("/event/:eventId", getEventFeedback);
-
-// Get feedback given by the logged-in user
-router.get("/my", authMiddleware, getUserFeedback);
+router.route("/").post(protect, createFeedback);
+router.route("/my").get(protect, getMyFeedback);
 
 module.exports = router;

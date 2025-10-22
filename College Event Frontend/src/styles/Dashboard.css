@@ -1,0 +1,75 @@
+.dashboard-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.dashboard-container h1 {
+  color: #004aad;
+  margin-bottom: 10px;
+}
+
+.dashboard-container > p {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 30px;
+}
+
+.registrations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.registration-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease;
+}
+
+.registration-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.registration-details h3 {
+  margin: 0 0 5px 0;
+  color: #333;
+}
+
+.registration-details p {
+  margin: 0;
+  color: #666;
+}
+
+.registration-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.registration-actions .btn-view {
+  background-color: #007bff;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 5px;
+  text-decoration: none;
+}
+
+.registration-actions .btn-feedback {
+  background-color: #6c757d;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 5px;
+  border: none;
+}
+
+.no-registrations {
+  text-align: center;
+  padding: 40px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}

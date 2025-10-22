@@ -1,31 +1,55 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
+  const toggleMenu = () => setMenuOpen(!menuOpen);
+
   return (
     <nav className="navbar">
-      <div className="navbar-logo">
-        <Link to="/" className="logo-text">
-          🎓 College Events
-        </Link>
+      <div className="logo">
+        <Link to="/">🎓 College Events</Link>
       </div>
 
-      <ul className="nav-links">
+      {/* Hamburger Icon */}
+      <div className="menu-icon" onClick={toggleMenu}>
+        ☰
+      </div>
+
+      <ul className={`nav-links ${menuOpen ? "active" : ""}`}>
         <li><Link to="/">Home</Link></li>
 
         {user && (
           <>
-            <li><Link to="/dashboard">Dashboard</Link></li>
-            <li><Link to="/add-event">Add Event</Link></li>
+            {user.role === "admin" && (
+              <>
+                <li><Link to="/admin/dashboard">Admin Dashboard</Link></li>
+                <li><Link to="/admin/manage-events">Manage Events</Link></li>
+              </>
+            )}
+
+            {user.role === "organizer" && (
+              <>
+                <li><Link to="/organizer/dashboard">Organizer Dashboard</Link></li>
+                <li><Link to="/organizer/create-event">Create Event</Link></li>
+              </>
+            )}
+
+            {user.role === "student" && (
+              <>
+                <li><Link to="/student/events">Events</Link></li>
+                <li><Link to="/student/registrations">My Registrations</Link></li>
+              </>
+            )}
           </>
         )}
 

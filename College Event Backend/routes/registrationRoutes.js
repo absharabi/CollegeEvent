@@ -1,20 +1,12 @@
 const express = require("express");
-const {
-  registerEvent,
-  getUserRegistrations,
-  getEventAttendees
-} = require("../controllers/registrationController");
-const authMiddleware = require("../middleware/authMiddleware");
-
 const router = express.Router();
+const {
+  registerForEvent,
+  getMyRegistrations,
+} = require("../controllers/registrationController");
+const { protect } = require("../middleware/authMiddleware");
 
-// Register a user for an event
-router.post("/register", authMiddleware, registerEvent);
-
-// Get all events a user registered for
-router.get("/my", authMiddleware, getUserRegistrations);
-
-// Get all attendees for a specific event (Organizer/Admin only)
-router.get("/event/:eventId/attendees", authMiddleware, getEventAttendees);
+router.post("/register", protect, registerForEvent);
+router.get("/my", protect, getMyRegistrations);
 
 module.exports = router;

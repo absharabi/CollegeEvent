@@ -1,7 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const { connectDB, sequelize } = require("./config/db");
+const sequelize = require("./config/db");
 
 // Route imports
 const authRoutes = require("./routes/authRoutes");
@@ -10,7 +10,6 @@ const registrationRoutes = require("./routes/registrationRoutes");
 const feedbackRoutes = require("./routes/feedbackRoutes");
 
 dotenv.config();
-connectDB();
 
 const app = express();
 

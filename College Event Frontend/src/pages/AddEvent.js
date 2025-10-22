@@ -1,62 +1,49 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../services/api";
 
 const AddEvent = () => {
-  const [eventName, setEventName] = useState("");
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
-  const [eventDate, setEventDate] = useState("");
+  const [date, setDate] = useState("");
+  const [category, setCategory] = useState("Tech"); // Add category state
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setMessage("⚠️ Please login first!");
-      return;
-    }
-
     try {
-      const res = await fetch("http://localhost:5000/api/events/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // ✅ Auth header
-        },
-        body: JSON.stringify({
-          event_name: eventName,
-          description,
-          location,
-          event_date: eventDate,
-        }),
+      await api.post("/events", {
+        title,
+        description,
+        location,
+        date,
+        category,
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        setMessage("✅ Event created successfully!");
-        setEventName("");
-        setDescription("");
-        setLocation("");
-        setEventDate("");
-      } else {
-        setMessage(`❌ ${data.message || "Failed to create event"}`);
-      }
+      setMessage("✅ Event created successfully! Redirecting...");
+      setTimeout(() => navigate("/admin/dashboard"), 1500);
+      setTitle("");
+      setDescription("");
+      setLocation("");
+      setDate("");
     } catch (error) {
       console.error("Error creating event:", error);
-      setMessage("⚠️ Something went wrong.");
+      setMessage(error.response?.data?.error || "⚠️ Something went wrong.");
     }
   };
 
   return (
-    <div className="form-container">
+    <div className="form-container" style={{ padding: "20px" }}>
       <h2>Add New Event</h2>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Event Name"
-          value={eventName}
-          onChange={(e) => setEventName(e.target.value)}
+          placeholder="Event Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
           required
         />
         <textarea
@@ -73,10 +60,15 @@ const AddEvent = () => {
         />
         <input
           type="date"
-          value={eventDate}
-          onChange={(e) => setEventDate(e.target.value)}
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
           required
         />
+        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+          <option value="Tech">Tech</option>
+          <option value="Cultural">Cultural</option>
+          <option value="Sports">Sports</option>
+        </select>
         <button type="submit">Add Event</button>
       </form>
 

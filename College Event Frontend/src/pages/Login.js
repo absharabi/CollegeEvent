@@ -1,37 +1,52 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import styles from "../styles/Form.module.css"; // Import the CSS module
+import api from "../services/api";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  const { login, user } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await api.post("/auth/login", { email, password });
+      const data = response.data;
 
-      const data = await res.json();
-
-      if (res.ok) {
-        // Save token to localStorage
-        localStorage.setItem("token", data.token);
-        setMessage("✅ Login successful!");
+      // ✅ Store token & log in via context
+      if (data.token && data.user) {
+        login({ user: data.user, token: data.token }); // Pass both user and token
       } else {
-        setMessage(`❌ ${data.message || "Login failed"}`);
+        setError("Token missing in response");
       }
-    } catch (error) {
-      console.error("Login error:", error);
-      setMessage("⚠️ Something went wrong. Try again later.");
+    } catch (err) {
+      console.error("Login error:", err);
+      setError(err.response?.data?.error || "Server error. Please try again later.");
     }
   };
 
+  // This effect runs when the `user` object in the context changes.
+  // When the user successfully logs in, this will navigate them to the correct dashboard.
+  useEffect(() => {
+    if (user) {
+      // Navigate based on user role
+      if (user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
+    }
+  }, [user, navigate]);
+
   return (
-    <div className="form-container">
+    <div className={styles.container}>
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
         <input
@@ -48,10 +63,9 @@ const Login = () => {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+        {error && <p className={styles.errorMsg}>{error}</p>}
         <button type="submit">Login</button>
       </form>
-
-      {message && <p style={{ marginTop: "10px" }}>{message}</p>}
     </div>
   );
 };

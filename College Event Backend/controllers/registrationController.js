@@ -1,52 +1,45 @@
-const { Registration, Event, User } = require("../models");
+const { Registration, Event } = require("../models");
 
-// Register a user for an event
-exports.registerEvent = async (req, res) => {
+// @desc    Register user for an event
+// @route   POST /api/registration/register
+// @access  Private
+const registerForEvent = async (req, res) => {
+  const { eventId } = req.body;
+  const userId = req.user.id;
+
   try {
-    const { eventId } = req.body;
-    const userId = req.user.id;
+    const existingRegistration = await Registration.findOne({
+      where: { user_id: userId, event_id: eventId },
+    });
 
-    // Check if event exists
-    const event = await Event.findByPk(eventId);
-    if (!event) return res.status(404).json({ error: "Event not found" });
+    if (existingRegistration) {
+      return res.status(400).json({ error: "Already registered for this event" });
+    }
 
-    // Check if user already registered
-    const existing = await Registration.findOne({ where: { userId, eventId } });
-    if (existing) return res.status(400).json({ error: "Already registered for this event" });
+    const registration = await Registration.create({
+      user_id: userId,
+      event_id: eventId,
+    });
 
-    // Create new registration
-    await Registration.create({ userId, eventId });
-    res.status(201).json({ message: "Event registration successful" });
+    res.status(201).json(registration);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Registration failed" });
+    res.status(500).json({ error: "Server error" });
   }
 };
 
-// Get all registrations for a user
-exports.getUserRegistrations = async (req, res) => {
+// @desc    Get registrations for the logged-in user
+// @route   GET /api/registration/my
+// @access  Private
+const getMyRegistrations = async (req, res) => {
   try {
-    const userId = req.user.id;
     const registrations = await Registration.findAll({
-      where: { userId },
-      include: [{ model: Event, as: "event" }]
+      where: { user_id: req.user.id },
+      include: [{ model: Event, attributes: ["id", "title", "date"] }],
     });
-    res.json(registrations);
+    res.status(200).json(registrations);
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch registrations" });
+    res.status(500).json({ error: "Server error" });
   }
 };
 
-// Get all attendees for a specific event
-exports.getEventAttendees = async (req, res) => {
-  try {
-    const eventId = req.params.eventId;
-    const attendees = await Registration.findAll({
-      where: { eventId },
-      include: [{ model: User, as: "user", attributes: ["id", "name", "email"] }]
-    });
-    res.json(attendees);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch attendees" });
-  }
-};
+module.exports = { registerForEvent, getMyRegistrations };

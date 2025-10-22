@@ -1,0 +1,70 @@
+.feedback-form {
+  max-width: 500px;
+  position: relative;
+}
+
+.feedback-form h2 {
+  margin-top: 0;
+  color: #004aad;
+}
+
+.close-button {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 28px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #aaa;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #555;
+}
+
+.star-rating {
+  display: flex;
+}
+
+.star-button {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  width: 16px; /* Half the width of the font-size */
+  overflow: hidden;
+}
+
+.star-button .star {
+  font-size: 32px;
+  display: block;
+  position: absolute;
+  top: 0;
+}
+
+.star-button.star-left .star {
+  left: 0;
+}
+
+.star-button.star-right .star {
+  right: 0;
+}
+
+.star-button.on .star {
+  color: #ffc107;
+}
+
+.star-button.off .star {
+  color: #ccc;
+}

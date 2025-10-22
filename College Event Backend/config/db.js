@@ -16,14 +16,14 @@ const sequelize = new Sequelize(
   }
 );
 
-const connectDB = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log("✅ MySQL Connected successfully.");
-  } catch (error) {
-    console.error("❌ Error connecting to the database:", error);
-    process.exit(1);
-  }
-};
+// Test the connection
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log("✅ MySQL Database connected successfully using Sequelize.");
+  })
+  .catch((error) => {
+    console.error("❌ Unable to connect to the database:", error);
+  });
 
-module.exports = { sequelize, connectDB };
+module.exports = sequelize;

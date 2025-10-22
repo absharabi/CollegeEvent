@@ -1,6 +1,7 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import api from "../services/api";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -8,7 +9,7 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const { login } = useContext(AuthContext);
+  const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -16,46 +17,46 @@ const Register = () => {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+      const response = await api.post("/auth/register", {
+        name,
+        email,
+        password,
       });
 
-      const data = await res.json();
+      const data = response.data;
 
-      if (!res.ok) {
-        setError(data.error || "Registration failed");
-        return;
-      }
-
-      // Auto-login after successful registration
-      const loginRes = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const loginData = await loginRes.json();
-
-      if (loginRes.ok && loginData.token) {
-        login(loginData.token);
-        navigate("/dashboard");
+      if (data.token && data.user) {
+        // ✅ Log in immediately after register
+        login({ user: data.user, token: data.token });
       } else {
-        setError("Login after registration failed");
+        setError("Unexpected response from server");
       }
     } catch (err) {
-      setError("Server error. Please try again later.");
+      console.error("Register error:", err);
+      setError(
+        err.response?.data?.error || "Server error. Please try again later."
+      );
     }
   };
 
+  // This effect runs after the user state is updated by the login function.
+  useEffect(() => {
+    if (user) {
+      // Navigate based on user role
+      if (user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
+    }
+  }, [user, navigate]);
   return (
     <div className="form-container">
       <h2>Register</h2>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Full Name"
+          placeholder="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required

@@ -1,0 +1,85 @@
+.event-detail-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.event-detail-container .back-link {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.event-detail-container .back-link:hover {
+  text-decoration: underline;
+}
+
+.event-header h1 {
+  color: #004aad;
+  margin-bottom: 10px;
+}
+
+.event-meta {
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.event-creator {
+  font-style: italic;
+  color: #888;
+  margin-bottom: 20px;
+}
+
+.event-description {
+  margin-top: 30px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.event-description h3 {
+  color: #004aad;
+  margin-bottom: 15px;
+}
+
+.event-description p {
+  line-height: 1.8;
+  color: #333;
+}
+
+.event-actions {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+  text-align: center;
+}
+
+.btn-register {
+  padding: 12px 25px;
+  font-size: 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-register:hover {
+  background-color: #218838;
+}
+
+.registration-status {
+  color: #007bff;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.error-msg {
+  color: #dc3545;
+  margin-top: 10px;
+}

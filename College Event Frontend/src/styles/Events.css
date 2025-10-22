@@ -1,0 +1,31 @@
+.events-container {
+  width: 100%;
+}
+
+.loading-text,
+.error-msg {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 18px;
+}
+
+.event-meta {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.btn-details {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.btn-details:hover {
+  background-color: #0056b3;
+}

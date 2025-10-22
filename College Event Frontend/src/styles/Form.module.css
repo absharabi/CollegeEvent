@@ -1,0 +1,50 @@
+.container {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 40px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.container h2 {
+  margin-bottom: 30px;
+  color: #004aad;
+}
+
+.container input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  box-sizing: border-box; /* Good practice to include */
+}
+
+.container input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.container button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 20px;
+  background-color: #007bff;
+  color: white;
+  border: none; /* remove default border */
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer; /* Add cursor pointer */
+}
+
+.container button:hover {
+  background-color: #0056b3;
+}
+
+.errorMsg {
+  color: #ff4d4d;
+  margin-top: 15px;
+}

@@ -20,41 +20,6 @@ button {
   cursor: pointer;
 }
 
-/* ===================== Navbar ===================== */
-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 50px;
-  background-color: #004aad;
-  color: white;
-}
-
-nav .logo {
-  font-size: 24px;
-  font-weight: bold;
-}
-
-nav ul {
-  display: flex;
-  list-style: none;
-}
-
-nav ul li {
-  margin-left: 20px;
-}
-
-nav ul li a {
-  text-decoration: none;
-  color: white;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
-
-nav ul li a:hover {
-  color: #ffcc00;
-}
-
 /* ===================== Hero Section ===================== */
 .hero {
   text-align: center;
@@ -119,50 +84,6 @@ nav ul li a:hover {
   color: #555;
 }
 
-/* ===================== Forms (Login & Register) ===================== */
-.form-container {
-  max-width: 400px;
-  margin: 50px auto;
-  padding: 40px;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  text-align: center;
-}
-
-.form-container h2 {
-  margin-bottom: 30px;
-  color: #004aad;
-}
-
-.form-container input {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-}
-
-.form-container input:focus {
-  border-color: #007bff;
-  outline: none;
-}
-
-.form-container button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 20px;
-  background-color: #007bff;
-  color: white;
-  border-radius: 5px;
-  font-size: 16px;
-}
-
-.form-container button:hover {
-  background-color: #0056b3;
-}
-
 /* ===================== Footer ===================== */
 footer {
   background-color: #004aad;
@@ -174,20 +95,6 @@ footer {
 
 /* ===================== Responsive ===================== */
 @media (max-width: 768px) {
-  nav {
-    flex-direction: column;
-    padding: 20px;
-  }
-
-  nav ul {
-    flex-direction: column;
-    margin-top: 10px;
-  }
-
-  nav ul li {
-    margin: 10px 0;
-  }
-
   .hero h1 {
     font-size: 32px;
   }
@@ -210,4 +117,157 @@ footer {
     padding: 20px;
     margin: 20px;
   }
+}
+
+/* ===================== Navbar Responsive Enhancements ===================== */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 50px;
+  background-color: #004aad;
+  color: white;
+  position: relative;
+}
+
+.menu-icon {
+  display: none;
+  font-size: 26px;
+  cursor: pointer;
+}
+
+/* Mobile menu hidden by default */
+.nav-links {
+  display: flex;
+  list-style: none;
+  transition: all 0.3s ease;
+}
+
+.logout-btn {
+  background-color: #ff4d4d;
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background-color: #ff1a1a;
+}
+
+/* ===================== Mobile View ===================== */
+@media (max-width: 768px) {
+  .menu-icon {
+    display: block;
+  }
+
+  .nav-links {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background: #004aad;
+    flex-direction: column;
+    width: 100%;
+    text-align: center;
+    max-height: 0;
+    overflow: hidden;
+  }
+
+  .nav-links.active {
+    max-height: 300px; /* expand when open */
+    padding-bottom: 15px;
+  }
+
+  .nav-links li {
+    margin: 15px 0;
+  }
+
+  .nav-links a {
+    font-size: 18px;
+  }
+}
+/* ===================== Admin Dashboard ===================== */
+.dashboard-container {
+  padding: 40px;
+}
+
+.card-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+/* ===================== Buttons ===================== */
+.btn-primary {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.btn-primary:hover {
+  background: #0056b3;
+}
+
+.btn-danger {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.btn-danger:hover {
+  background: #d60000;
+}
+
+/* ===================== Modal ===================== */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ===================== Feedback Form ===================== */
+.feedback-form {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 30px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.feedback-form textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  resize: vertical;
+}
+
+/* ===================== Chart Card ===================== */
+.chart-card {
+  margin-top: 40px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
