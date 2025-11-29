@@ -1,42 +1,36 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/db");
-
-const Event = sequelize.define(
-  "Event",
-  {
+module.exports = (sequelize, DataTypes) => {
+  const Event = sequelize.define("Event", {
     id: {
       type: DataTypes.INTEGER,
-      autoIncrement: true,
       primaryKey: true,
+      autoIncrement: true,
     },
     title: {
-      type: DataTypes.STRING(150),
+      type: DataTypes.STRING,
       allowNull: false,
     },
     description: {
       type: DataTypes.TEXT,
-      allowNull: false,
+      allowNull: true,
     },
     date: {
-      type: DataTypes.DATEONLY,
+      type: DataTypes.DATE,
       allowNull: false,
     },
     location: {
-      type: DataTypes.STRING(150),
+      type: DataTypes.STRING,
       allowNull: false,
     },
     category: {
-      type: DataTypes.ENUM("Sports", "Tech", "Cultural"),
-      allowNull: false,
+      type: DataTypes.ENUM("Tech", "Cultural", "Sports", "Other"),
+      defaultValue: "Other",
     },
-    // created_by is defined by the association in models/index.js
-  },
-  {
-    tableName: "events",
-    timestamps: true,
-    updatedAt: false,
-    createdAt: "created_at",
-  }
-);
+    organizer_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: { model: "Users", key: "id" }, // Foreign key to User model
+    },
+  });
 
-module.exports = Event;
+  return Event;
+};

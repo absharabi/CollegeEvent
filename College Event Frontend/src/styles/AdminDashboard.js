@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import api from "../../services/api";
+import "./Admin.css"; // Import the CSS file
 import { AuthContext } from "../../context/AuthContext";
 
 const AdminDashboard = () => {

@@ -1,29 +1,33 @@
+// File: routes/eventRoutes.js
 const express = require("express");
 const router = express.Router();
+const { protect, admin } = require("../middleware/authMiddleware");
 const {
   createEvent,
   getAllEvents,
   getEventById,
-  getEventFeedback,
-  getEventRegistrations,
   updateEvent,
   deleteEvent,
+  getEventRegistrations,
+  generateCertificate,
 } = require("../controllers/eventController");
-const { protect, isOrganizerOrAdmin } = require("../middleware/authMiddleware");
 
-router.route("/").get(getAllEvents).post(protect, isOrganizerOrAdmin, createEvent);
+// Public routes
+router.get("/", getAllEvents);
+router.get("/:id", getEventById);
 
-router.route("/:id")
-  .get(getEventById)
-  .put(protect, isOrganizerOrAdmin, updateEvent)
-  .delete(protect, isOrganizerOrAdmin, deleteEvent);
+// New route to get events by category
+router.get("/category/:categoryName", getAllEvents);
 
-router
-  .route("/:id/registrations")
-  .get(protect, isOrganizerOrAdmin, getEventRegistrations);
+// Admin protected routes
+router.post("/", protect, admin, createEvent);
+router.put("/:id", protect, admin, updateEvent);
+router.delete("/:id", protect, admin, deleteEvent);
 
-router
-  .route("/:id/feedback")
-  .get(protect, isOrganizerOrAdmin, getEventFeedback);
+// Admin/Organizer view of registrations
+router.get("/:id/registrations", protect, admin, getEventRegistrations);
+
+// Certificate download
+router.get("/:eventId/certificate", protect, generateCertificate);
 
 module.exports = router;

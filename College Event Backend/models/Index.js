@@ -1,39 +1,58 @@
-const sequelize = require("../config/db");
-const User = require("./User");
-const Event = require("./Event");
-const Registration = require("./Registration");
-const Feedback = require("./Feedback");
+const Sequelize = require("sequelize");
+const { sequelize } = require("../config/db"); // Your database connection
 
-const db = {};
+// Import models
+const User = require("./User")(sequelize, Sequelize);
+const Event = require("./Event")(sequelize, Sequelize);
+const Registration = require("./Registration")(sequelize, Sequelize);
+const Feedback = require("./Feedback")(sequelize, Sequelize);
 
-db.sequelize = sequelize;
-db.User = User;
-db.Event = Event;
-db.Registration = Registration;
-db.Feedback = Feedback;
+// Define Associations
 
-// --- Define Associations ---
+// User and Event (Organizer)
+// A User can organize many Events
+// An Event is organized by one User
+User.hasMany(Event, { foreignKey: "organizer_id", as: "OrganizedEvents" });
+Event.belongsTo(User, { foreignKey: "organizer_id", as: "Organizer" });
 
-// 1. User has many Events (as a creator)
-User.hasMany(Event, {
-  foreignKey: "created_by",
-  onDelete: "SET NULL",
-});
-Event.belongsTo(User, {
-  foreignKey: "created_by",
-  as: "creator",
-});
+// User and Registration
+// A User can have many Registrations
+// A Registration belongs to one User
+User.hasMany(Registration, { foreignKey: "user_id", as: "Registrations" });
+Registration.belongsTo(User, { foreignKey: "user_id", as: "User" });
 
-// 2. Many-to-Many: Users <-> Events (through Registrations)
-User.belongsToMany(Event, { through: Registration, foreignKey: "user_id" });
-Event.belongsToMany(User, { through: Registration, foreignKey: "event_id" });
+// Event and Registration
+// An Event can have many Registrations
+// A Registration belongs to one Event
+Event.hasMany(Registration, { foreignKey: "event_id", as: "Registrations" });
+Registration.belongsTo(Event, { foreignKey: "event_id", as: "Event" });
 
-// 3. One-to-Many: A User can give Feedback for many Events
-//    One-to-Many: An Event can have Feedback from many Users
-User.hasMany(Feedback, { foreignKey: "user_id", onDelete: "CASCADE" });
-Feedback.belongsTo(User, { foreignKey: "user_id" });
+// User and Feedback
+// A User can give many Feedbacks
+// A Feedback belongs to one User
+User.hasMany(Feedback, { foreignKey: "user_id", as: "Feedback" });
+Feedback.belongsTo(User, { foreignKey: "user_id", as: "User" });
 
-Event.hasMany(Feedback, { foreignKey: "event_id", onDelete: "CASCADE" });
-Feedback.belongsTo(Event, { foreignKey: "event_id" });
+// Event and Feedback
+// An Event can receive many Feedbacks
+// A Feedback belongs to one Event
+Event.hasMany(Feedback, { foreignKey: "event_id", as: "Feedback" });
+Feedback.belongsTo(Event, { foreignKey: "event_id", as: "Event" });
+
+// Export models and sequelize instance
+const db = {
+  sequelize,
+  Sequelize,
+  User,
+  Event,
+  Registration,
+  Feedback,
+};
+
+// Optional: Sync all models with the database
+// This will create tables if they don't exist
+// db.sequelize.sync({ force: false }) // Use { force: true } only in development to drop and re-create tables
+//   .then(() => console.log("Database & tables created!"))
+//   .catch(err => console.error("Error syncing database:", err));
 
 module.exports = db;

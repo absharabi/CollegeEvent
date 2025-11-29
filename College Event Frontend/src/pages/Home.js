@@ -1,5 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import "../styles/global.css";
+
 
 const Home = () => {
   return (
@@ -18,20 +20,26 @@ const Home = () => {
 
       {/* Event Categories */}
       <section className="cards">
-        <div className="card">
-          <h2>Technical Fest</h2>
-          <p>Join exciting hackathons, workshops, and coding contests.</p>
-        </div>
+        <Link to="/events/category/Tech" className="card-link">
+          <div className="card">
+            <h2>Technical Fest</h2>
+            <p>Join exciting hackathons, workshops, and coding contests.</p>
+          </div>
+        </Link>
 
-        <div className="card">
-          <h2>Cultural Fest</h2>
-          <p>Experience music, dance, art, and theatre performances.</p>
-        </div>
+        <Link to="/events/category/Cultural" className="card-link">
+          <div className="card">
+            <h2>Cultural Fest</h2>
+            <p>Experience music, dance, art, and theatre performances.</p>
+          </div>
+        </Link>
 
-        <div className="card">
-          <h2>Sports Day</h2>
-          <p>Compete, win, and cheer for your favorite college teams.</p>
-        </div>
+        <Link to="/events/category/Sports" className="card-link">
+          <div className="card">
+            <h2>Sports Day</h2>
+            <p>Compete, win, and cheer for your favorite college teams.</p>
+          </div>
+        </Link>
       </section>
 
       {/* Footer */}

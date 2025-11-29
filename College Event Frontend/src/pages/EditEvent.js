@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import api from "../services/api"; // Import the centralized API service
 
+import "../styles/Admin.css"; // Import Admin styles for form consistency
 const EditEvent = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -37,52 +38,57 @@ const EditEvent = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-8">
-      <h2 className="text-2xl font-semibold mb-4">Edit Event</h2>
-      <form onSubmit={handleSubmit} className="space-y-3">
+    <div className="admin-container">
+      <Link to="/admin/dashboard" className="back-link">
+        &larr; Back to Dashboard
+      </Link>
+      <div className="form-container">
+        <h2>Edit Event</h2>
+        <form onSubmit={handleSubmit}>
         <input
           name="title"
           value={eventData.title}
           onChange={handleChange}
           placeholder="Title"
-          className="border p-2 w-full"
+          required
         />
         <textarea
           name="description"
           value={eventData.description}
           onChange={handleChange}
           placeholder="Description"
-          className="border p-2 w-full"
+          required
         />
         <input
           type="date"
           name="date"
           value={eventData.date}
           onChange={handleChange}
-          className="border p-2 w-full"
+          required
         />
         <input
           name="location"
           value={eventData.location}
           onChange={handleChange}
           placeholder="Location"
-          className="border p-2 w-full"
+          required
         />
         <select
           name="category"
           value={eventData.category}
           onChange={handleChange}
-          className="border p-2 w-full"
+          required
         >
           <option value="Sports">Sports</option>
           <option value="Tech">Tech</option>
           <option value="Cultural">Cultural</option>
         </select>
 
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+        <button type="submit" className="btn btn-primary">
           Update Event
         </button>
       </form>
+    </div>
     </div>
   );
 };

@@ -1,82 +1,81 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
 import api from "../services/api";
+import { AuthContext } from "../context/AuthContext";
+import "../styles/Dashboard.css"; // Reusing some styles
 
 const EventDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // Get the event ID from the URL
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
-
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [registrationStatus, setRegistrationStatus] = useState("");
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    const fetchEvent = async () => {
+    const fetchEventDetails = async () => {
       try {
         const response = await api.get(`/events/${id}`);
         setEvent(response.data);
       } catch (err) {
-        console.error("Error fetching event details:", err);
+        setError("Failed to load event details. It might not exist.");
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    fetchEvent();
+
+    fetchEventDetails();
   }, [id]);
 
-  if (loading) return <p>Loading event details...</p>;
-  if (!event) return <p>Event not found.</p>;
+  const handleRegister = async () => {
+    if (!user) {
+      setRegistrationStatus("Please log in to register.");
+      return;
+    }
 
-  const handleFeedbackClick = () => {
-    navigate(`/feedback/${event.id}`);
+    try {
+      await api.post(`/registration/${id}`);
+      setRegistrationStatus("✅ Successfully registered! Redirecting to your dashboard...");
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 2000); // Redirect after 2 seconds
+    } catch (err) {
+      setRegistrationStatus(
+        err.response?.data?.error || "⚠️ Registration failed. You may already be registered."
+      );
+    }
   };
 
   return (
-    <div
-      style={{
-        padding: "30px",
-        maxWidth: "700px",
-        margin: "0 auto",
-        border: "1px solid #ddd",
-        borderRadius: "10px",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-      }}
-    >
-      <h1>{event.title}</h1>
-      <p style={{ fontSize: "1.1em", color: "#444" }}>{event.description}</p>
+    <div className="dashboard-container">
+      {loading ? (
+        <p className="loading-text">Loading event details...</p>
+      ) : error ? (
+        <p className="error-msg">{error}</p>
+      ) : event ? (
+        <div className="event-card-full">
+          <h1>{event.title}</h1>
+          <p className="event-meta">
+            <strong>Category:</strong> {event.category} | <strong>Location:</strong> {event.location}
+          </p>
+          <p className="event-meta">
+            <strong>Date:</strong> {new Date(event.date).toLocaleDateString("en-US", {
+              year: 'numeric', month: 'long', day: 'numeric'
+            })}
+          </p>
+          <p className="event-description-full">{event.description}</p>
 
-      <p>
-        📍 <strong>Location:</strong> {event.location}
-      </p>
-      <p>
-        📅 <strong>Date:</strong>{" "}
-        {new Date(event.date).toLocaleDateString("en-GB")}
-      </p>
-
-      {/* Show feedback button only for students */}
-      {user?.role === "student" && (
-        <button
-          onClick={handleFeedbackClick}
-          style={{
-            background: "#007bff",
-            color: "white",
-            border: "none",
-            padding: "10px 15px",
-            borderRadius: "5px",
-            cursor: "pointer",
-            marginTop: "20px",
-          }}
-        >
-          💬 Give Feedback
-        </button>
-      )}
-
-      {/* Admin view: maybe future options */}
-      {user?.role === "admin" && (
-        <p style={{ color: "#888", marginTop: "15px" }}>
-          (Admin view: feedback not available)
-        </p>
+          {user?.role === "student" && (
+            <div className="registration-section">
+              <button onClick={handleRegister} className="btn btn-primary">Register for this Event</button>
+              {registrationStatus && <p className="status-msg">{registrationStatus}</p>}
+            </div>
+          )}
+        </div>
+      ) : (
+        <p>No event found.</p>
       )}
     </div>
   );

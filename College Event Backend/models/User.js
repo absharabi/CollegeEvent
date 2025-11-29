@@ -1,46 +1,52 @@
-// models/User.js
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/db"); // Corrected import
+const bcrypt = require("bcryptjs");
 
-const User = sequelize.define("User", {
-  id: { 
-    type: DataTypes.INTEGER, 
-    autoIncrement: true, 
-    primaryKey: true 
-  },
-  name: { 
-    type: DataTypes.STRING(100), // Match VARCHAR(100)
-    allowNull: false 
-  },
-  email: { 
-    type: DataTypes.STRING(100), // Match VARCHAR(100)
-    allowNull: false, 
-    unique: true,
-    validate: {
-      isEmail: { msg: "Must be a valid email address" }
+module.exports = (sequelize, DataTypes) => {
+  const User = sequelize.define(
+    "User",
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      password: {
+        type: DataTypes.STRING(255), // Use a sufficient length for bcrypt hashes
+        allowNull: false,
+      },
+      role: {
+        type: DataTypes.ENUM("student", "admin", "organizer"),
+        defaultValue: "student",
+      },
+    },
+    {
+      hooks: {
+        beforeCreate: async (user) => {
+          const salt = await bcrypt.genSalt(10);
+          user.password = await bcrypt.hash(user.password, salt);
+        },
+        beforeUpdate: async (user) => {
+          if (user.changed("password")) {
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(user.password, salt);
+          }
+        },
+      },
     }
-  },
-  password: { 
-    type: DataTypes.STRING(255), // Match VARCHAR(255)
-    allowNull: false 
-  },
-  role: { 
-    type: DataTypes.ENUM("student", "organizer", "admin"), 
-    defaultValue: "student" 
-  },
-  // Explicitly define the created_at column to set a default value
-  created_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
-  }
-}, 
-{
-  // Sequelize options to match your table schema precisely
-  tableName: "users",    // Match the exact table name 'users' (lowercase)
-  timestamps: true,      // Enable timestamps
-  updatedAt: false,      // We are not using an 'updatedAt' field
-  createdAt: "created_at" // Map Sequelize's 'createdAt' to our 'created_at' column
-}); 
+  );
 
-module.exports = User;
+  // Method to compare passwords
+  User.prototype.matchPassword = async function (enteredPassword) {
+    return await bcrypt.compare(enteredPassword, this.password);
+  };
+
+  return User;
+};

@@ -1,77 +1,65 @@
 import React, { createContext, useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import api from "../services/api"; // We'll create this service next
 
+// 1. Create the context
 export const AuthContext = createContext();
 
+// 2. Create the provider component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null); // ✅ added
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [loading, setLoading] = useState(true);
 
-  // ✅ Load user + token from localStorage on refresh
+  // 3. Check for user on initial load
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem("user");
-      const storedToken = localStorage.getItem("token");
+    const loadUser = () => {
+      try {
+        const storedToken = localStorage.getItem("token");
+        const storedUser = localStorage.getItem("user");
 
-      if (
-        storedUser &&
-        storedUser !== "undefined" &&
-        storedUser !== "null" &&
-        storedToken
-      ) {
-        setUser(JSON.parse(storedUser));
-        setToken(storedToken);
-      } else {
-        localStorage.removeItem("user");
+        if (storedToken && storedUser) {
+          // Set the user from localStorage
+          setUser(JSON.parse(storedUser));
+          // IMPORTANT: Set the auth token for all future API requests
+          api.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
+        }
+      } catch (error) {
+        console.error("Failed to load user from localStorage", error);
+        // Clear potentially corrupted storage
         localStorage.removeItem("token");
-        setUser(null);
-        setToken(null);
+        localStorage.removeItem("user");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Error parsing user data:", err);
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
-      setUser(null);
-      setToken(null);
-    }
+    };
+
+    loadUser();
   }, []);
 
-  // ✅ Handle login + role-based redirect
-  const login = ({ user, token }) => {
-    if (!user || !token) return;
+  // 4. Login function
+  const login = (userData) => {
+    const { token, user: userObject } = userData;
 
-    setUser(user);
-    setToken(token);
-    localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(userObject));
 
-    // Role-based redirect
-    setTimeout(() => {
-      if (user.role === "admin") navigate("/admin/dashboard");
-      else if (user.role === "organizer") navigate("/organizer/dashboard");
-      else if (user.role === "student") navigate("/dashboard");
-      else navigate("/");
-    }, 100);
+    // Set the user state
+    setUser(userObject);
+
+    // Set auth token for future requests
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   };
 
-  // ✅ Logout
+  // 5. Logout function
   const logout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem("user");
     localStorage.removeItem("token");
-    if (location.pathname !== "/login") navigate("/login");
+    localStorage.removeItem("user");
+    setUser(null);
+    delete api.defaults.headers.common["Authorization"];
   };
 
-  // ✅ Auth headers for API calls
-  const getAuthHeaders = () => {
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
-
+  // 6. Provide the context value to children
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, getAuthHeaders }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

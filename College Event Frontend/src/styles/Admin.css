@@ -43,6 +43,42 @@
 }
 
 /* =====================
+   Stats Cards
+   ===================== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.stat-card {
+  background-color: #ecf0f1;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  border-left: 5px solid #3498db;
+}
+
+.stat-card:nth-child(2) { border-left-color: #27ae60; }
+.stat-card:nth-child(3) { border-left-color: #f39c12; }
+.stat-card:nth-child(4) { border-left-color: #e74c3c; }
+
+.stat-card h4 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  color: #7f8c8d;
+  text-transform: uppercase;
+}
+
+.stat-card p {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+/* =====================
    Admin Actions
    ===================== */
 .admin-actions {
@@ -124,6 +160,22 @@
 .btn-delete:hover {
   color: #c0392b;
   text-decoration: underline;
+}
+
+.btn-attendance {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  color: #555;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-attendance.attended {
+  background-color: #eaf7f0;
+  border-color: #27ae60;
+  color: #27ae60;
 }
 
 /* =====================

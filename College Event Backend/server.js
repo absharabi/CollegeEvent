@@ -1,35 +1,49 @@
-const express = require("express");
+// Load environment variables FIRST
 const dotenv = require("dotenv");
-const cors = require("cors");
-const sequelize = require("./config/db");
-
-// Route imports
-const authRoutes = require("./routes/authRoutes");
-const eventRoutes = require("./routes/eventRoutes");
-const registrationRoutes = require("./routes/registrationRoutes");
-const feedbackRoutes = require("./routes/feedbackRoutes");
 
 dotenv.config();
 
-const app = express();
+const express = require("express");
+const cors = require("cors");
+const { sequelize, connectDB } = require("./config/db"); // Your Sequelize connection
+const { User, Event, Registration, Feedback } = require("./models"); // Import models and associations
 
-app.use(express.json());
-app.use(cors());
+const startServer = async () => {
+  // Connect to database
+  await connectDB();
 
-// ✅ API Routes
-app.use("/api/auth", authRoutes);                // Register/Login
-app.use("/api/events", eventRoutes);             // Event CRUD & listing
-app.use("/api/registration", registrationRoutes); // Event registrations
-app.use("/api/feedback", feedbackRoutes);         // Feedback system
+  const app = express();
 
-// ✅ Database Sync
-sequelize
-  .sync({ alter: true })
-  .then(() => console.log("✅ MySQL tables synced successfully"))
-  .catch((err) => console.error("❌ Error syncing tables:", err));
+  // Middleware
+  app.use(cors()); // Enable CORS for all origins
+  app.use(express.json()); // Body parser for JSON data
 
-// ✅ Root endpoint
-app.get("/", (req, res) => res.send("🎓 College Event Backend Running"));
+  // Routes
+  app.use("/api/auth", require("./routes/authRoutes"));
+  app.use("/api/events", require("./routes/eventRoutes"));
+  app.use("/api/registration", require("./routes/registrationRoutes"));
+  app.use("/api/feedback", require("./routes/feedbackRoutes"));
+  app.use("/api/admin", require("./routes/adminRoutes"));
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+  // Basic route for testing
+  app.get("/", (req, res) => {
+    res.send("API is running...");
+  });
+
+  // Database synchronization
+  const PORT = process.env.PORT || 5000;
+  await sequelize.sync({ force: false }) // Set to false for production/regular use to prevent data loss
+    .then(() => {
+      console.log("Database synced successfully");
+      // Start the server only after the database is ready
+      app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+      });
+    })
+    .catch((err) => {
+      console.error("Error syncing database:", err);
+      process.exit(1); // Exit if sync fails
+    });
+};
+
+startServer();

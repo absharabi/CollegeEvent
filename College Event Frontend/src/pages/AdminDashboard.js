@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
-import api from "../services/api";
-import { useNavigate } from "react-router-dom";
+import api from "../services/api"; // Correct path
+import { useNavigate, Link } from "react-router-dom"; // Import Link
 import { AuthContext } from "../context/AuthContext";
 import { Bar } from "react-chartjs-2";
 import {
@@ -16,9 +16,15 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const AdminDashboard = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext); // Keep logout here for the button
   const [events, setEvents] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
+  const [stats, setStats] = useState({
+    totalEvents: 0,
+    totalUsers: 0,
+    totalRegistrations: 0,
+    upcomingEventsCount: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [editEvent, setEditEvent] = useState(null);
   const [formData, setFormData] = useState({
@@ -28,44 +34,34 @@ const AdminDashboard = () => {
     location: "",
     category: "",
   });
-  const navigate = useNavigate();
-
-  // Fetch events
-  const fetchEvents = async () => {
-    try {
-      const res = await api.get("/events");
-      setEvents(res.data);
-    } catch (err) {
-      console.error("Error fetching events:", err);
-    }
-  };
-
-  // Fetch all feedback for all events (admin action)
-  const fetchFeedbacks = async () => {
-    try {
-      // This assumes you have an admin route to get all feedback.
-      // Let's get feedback for each event individually for now.
-      const feedbackPromises = events.map(event => api.get(`/feedback/event/${event.id}`));
-      const feedbackResults = await Promise.all(feedbackPromises);
-      // Flatten the array of arrays into a single feedback array
-      setFeedbacks(feedbackResults.flatMap(res => res.data));
-    } catch (err) {
-      console.error("Error fetching feedbacks:", err);
-    }
-  };
+  const navigate = useNavigate(); // Keep navigate here
 
   useEffect(() => {
     const loadData = async () => {
-      await fetchEvents();
-      await fetchFeedbacks();
-      setLoading(false);
+      try {
+        setLoading(true);
+        const [eventsRes, statsRes] = await Promise.all([
+          api.get("/events"),
+          api.get("/admin/stats"),
+        ]);
+
+        const fetchedEvents = eventsRes.data;
+        setEvents(fetchedEvents);
+        setStats(statsRes.data);
+
+        if (fetchedEvents.length > 0) {
+          const feedbackPromises = fetchedEvents.map((event) => api.get(`/feedback/event/${event.id}`));
+          const feedbackResults = await Promise.all(feedbackPromises);
+          setFeedbacks(feedbackResults.flatMap(res => res.data));
+        }
+      } catch (err) {
+        console.error("Failed to load admin dashboard data:", err);
+      } finally {
+        setLoading(false);
+      }
     };
     loadData();
   }, []); // Initial load
-
-  useEffect(() => {
-    if (events.length > 0) fetchFeedbacks();
-  }, [events]); // Re-fetch feedback when events change
 
   // Delete Event
   const handleDelete = async (id) => {
@@ -73,7 +69,7 @@ const AdminDashboard = () => {
     try {
       await api.delete(`/events/${id}`);
       alert("Event deleted successfully!");
-      fetchEvents();
+      setEvents(events.filter(event => event.id !== id)); // Update state directly
     } catch (err) {
       console.error("Error deleting event:", err);
       alert("Failed to delete event.");
@@ -98,7 +94,9 @@ const AdminDashboard = () => {
       await api.put(`/events/${editEvent}`, formData);
       alert("✅ Event updated successfully!");
       setEditEvent(null);
-      fetchEvents();
+      // Refetch events to show updated data
+      const res = await api.get("/events");
+      setEvents(res.data);
     } catch (err) {
       console.error("Error updating event:", err);
       alert("Failed to update event.");
@@ -120,7 +118,7 @@ const AdminDashboard = () => {
       {
         label: "Average Rating",
         data: events.map((event) => { // Bug Fix: was f.event_id, should be f.eventId
-          const eventFeedbacks = feedbacks.filter((f) => f.eventId === event.id);
+          const eventFeedbacks = feedbacks.filter((f) => f.event_id === event.id); // Corrected to event_id
           if (!eventFeedbacks.length) return 0;
           const avg =
             eventFeedbacks.reduce((sum, f) => sum + (f.rating || 0), 0) /
@@ -141,7 +139,7 @@ const AdminDashboard = () => {
   if (loading) return <p>Loading Admin Dashboard...</p>;
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="admin-container"> {/* Use admin-container class */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <h1>Admin Dashboard</h1>
@@ -155,90 +153,59 @@ const AdminDashboard = () => {
         </button>
       </div>
 
-      {/* Event Cards */}
-      <div style={{ display: "grid", gap: "15px", marginTop: "20px" }}>
-        {events.map((event) => (
-          <div
-            key={event.id}
-            style={{
-              border: "1px solid #ccc",
-              borderRadius: "10px",
-              padding: "15px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            }}
-          >
-            <h2>{event.title}</h2>
-            <p>{event.description}</p>
-            <p>
-              📅 {new Date(event.date).toLocaleDateString()} | 📍 {event.location}
-            </p>
-
-            <div style={{ marginTop: "10px" }}>
-              <button
-                style={{
-                  background: "#007bff",
-                  color: "white",
-                  border: "none",
-                  padding: "8px 12px",
-                  borderRadius: "5px",
-                  marginRight: "10px",
-                }}
-                onClick={() => handleEditClick(event)}
-              >
-                ✏️ Edit
-              </button>
-              <button
-                style={{
-                  background: "#ff4d4d",
-                  color: "white",
-                  border: "none",
-                  padding: "8px 12px",
-                  borderRadius: "5px",
-                }}
-                onClick={() => handleDelete(event.id)}
-              >
-                🗑️ Delete
-              </button>
-            </div>
-          </div>
-        ))}
+      {/* Stats Cards */}
+      <div className="stats-grid">
+        <div className="stat-card">
+          <h4>Total Events</h4>
+          <p>{stats.totalEvents}</p>
+        </div>
+        <div className="stat-card">
+          <h4>Upcoming Events</h4>
+          <p>{stats.upcomingEventsCount}</p>
+        </div>
+        <div className="stat-card">
+          <h4>Total Students</h4>
+          <p>{stats.totalUsers}</p>
+        </div>
+        <div className="stat-card">
+          <h4>Total Registrations</h4>
+          <p>{stats.totalRegistrations}</p>
+        </div>
       </div>
 
-      {/* Edit Modal */}
-      {editEvent && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            background: "rgba(0,0,0,0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <form
-            onSubmit={handleEditSubmit}
-            style={{
-              background: "white",
-              padding: "30px",
-              borderRadius: "10px",
-              width: "400px",
-            }}
-          >
-            <h2>Edit Event</h2>
-            <input name="title" value={formData.title} onChange={handleChange} placeholder="Title" required />
-            <textarea name="description" value={formData.description} onChange={handleChange} placeholder="Description" />
-            <input name="location" value={formData.location} onChange={handleChange} placeholder="Location" required />
-            <input type="date" name="date" value={formData.date} onChange={handleChange} required />
-            <input name="category" value={formData.category} onChange={handleChange} placeholder="Category" required />
-            <button type="submit">Save</button>
-            <button type="button" onClick={() => setEditEvent(null)}>Cancel</button>
-          </form>
-        </div>
-      )}
+      <div className="admin-actions">
+        <Link to="/admin/add-event" className="btn btn-primary"> {/* Corrected link */}
+          + Create New Event
+        </Link>
+      </div>
+
+      {/* Event Cards */}
+      <div className="admin-table-wrapper"> {/* Use a wrapper for table styling */}
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Date</th>
+              <th>Location</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+        {events.map((event) => (
+          <tr key={event.id}>
+            <td>{event.title}</td>
+            <td>{new Date(event.date).toLocaleDateString()}</td>
+            <td>{event.location}</td>
+            <td className="action-links">
+              <Link to={`/admin/events/${event.id}/registrations`}>Registrations</Link>
+              <Link to={`/admin/edit-event/${event.id}`}>Edit</Link>
+              <button onClick={() => handleDelete(event.id)} className="btn-delete">Delete</button>
+            </td>
+          </tr>
+        ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Feedback Chart */}
       <div style={{ marginTop: "40px" }}>

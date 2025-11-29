@@ -25,29 +25,31 @@ const Navbar = () => {
         ☰
       </div>
 
-      <ul className={`nav-links ${menuOpen ? "active" : ""}`}>
-        <li><Link to="/">Home</Link></li>
-
+      <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
+        <li>
+          <Link to="/">Home</Link>
+        </li>
         {user && (
           <>
             {user.role === "admin" && (
               <>
-                <li><Link to="/admin/dashboard">Admin Dashboard</Link></li>
-                <li><Link to="/admin/manage-events">Manage Events</Link></li>
-              </>
-            )}
-
-            {user.role === "organizer" && (
-              <>
-                <li><Link to="/organizer/dashboard">Organizer Dashboard</Link></li>
-                <li><Link to="/organizer/create-event">Create Event</Link></li>
+                <li>
+                  <Link to="/admin/dashboard">Admin Dashboard</Link>
+                </li>
+                <li>
+                  <Link to="/admin/add-event">Create Event</Link>
+                </li>
               </>
             )}
 
             {user.role === "student" && (
               <>
-                <li><Link to="/student/events">Events</Link></li>
-                <li><Link to="/student/registrations">My Registrations</Link></li>
+                <li>
+                  <Link to="/dashboard">My Dashboard</Link>
+                </li>
+                <li>
+                  <Link to="/my-certificates">My Certificates</Link>
+                </li>
               </>
             )}
           </>
@@ -55,11 +57,16 @@ const Navbar = () => {
 
         {!user ? (
           <>
-            <li><Link to="/login">Login</Link></li>
-            <li><Link to="/register">Register</Link></li>
+            <li>
+              <Link to="/login">Login</Link>
+            </li>
+            <li>
+              <Link to="/register">Register</Link>
+            </li>
           </>
         ) : (
-          <li>
+          <li className="user-info-and-logout">
+            <span className="welcome-user">Welcome, {user.name}! ({user.role || 'Role Missing'})</span>
             <button className="logout-btn" onClick={handleLogout}>
               Logout
             </button>

@@ -1,34 +1,34 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/db");
-
-const Feedback = sequelize.define(
-  "Feedback",
-  {
+module.exports = (sequelize, DataTypes) => {
+  const Feedback = sequelize.define("Feedback", {
     id: {
       type: DataTypes.INTEGER,
-      autoIncrement: true,
       primaryKey: true,
+      autoIncrement: true,
     },
-    // user_id and event_id are defined by the association in models/index.js
-    comment: {
-      type: DataTypes.TEXT,
-      allowNull: true, // Or false if it's required
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      onDelete: 'CASCADE',
+      references: { model: "Users", key: "id" },
+    },
+    event_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      onDelete: 'CASCADE',
+      references: { model: "Events", key: "id" },
     },
     rating: {
-      type: DataTypes.FLOAT,
-      allowNull: true, // Or false if it's required
+      type: DataTypes.INTEGER,
+      allowNull: false,
       validate: {
-        min: 0.5,
+        min: 1,
         max: 5,
       },
     },
-  },
-  {
-    tableName: "feedback",
-    timestamps: true,
-    updatedAt: false,
-    createdAt: "submitted_at",
-  }
-);
+    comments: {
+      type: DataTypes.TEXT,
+    },
+  });
 
-module.exports = Feedback;
+  return Feedback;
+};

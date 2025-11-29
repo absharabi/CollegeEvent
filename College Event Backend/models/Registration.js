@@ -1,24 +1,31 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/db");
-
-const Registration = sequelize.define(
-  "Registration",
-  {
+module.exports = (sequelize, DataTypes) => {
+  const Registration = sequelize.define("Registration", {
     id: {
       type: DataTypes.INTEGER,
-      autoIncrement: true,
       primaryKey: true,
+      autoIncrement: true,
     },
-    // user_id and event_id are foreign keys automatically added by Sequelize
-    // through the User.belongsToMany(Event, { through: Registration }) association
-    // in your models/index.js file.
-  },
-  {
-    tableName: "registrations",
-    timestamps: true,
-    updatedAt: false,
-    createdAt: "registration_date",
-  }
-);
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      onDelete: 'CASCADE',
+      references: { model: "Users", key: "id" },
+    },
+    event_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      onDelete: 'CASCADE',
+      references: { model: "Events", key: "id" },
+    },
+    attended: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    registration_date: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+  });
 
-module.exports = Registration;
+  return Registration;
+};
